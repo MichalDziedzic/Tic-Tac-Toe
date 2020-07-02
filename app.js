@@ -23,14 +23,42 @@ boxes.forEach((box) => box.addEventListener("click", pick));
 
 function pick(e) {
   const { row, column } = e.target.dataset;
-  console.log({ row, column });
+
   const turn = round % 2 === 0 ? PLAYER_TWO : PLAYER_ONE;
   if (board[row][column] !== "") return;
   e.target.classList.add(turn);
   board[row][column] = turn;
+
   round++;
 
-  check();
+  let win = check();
+}
+function StopGame() {
+  boxes.forEach((box) => box.removeEventListener("click", pick));
 }
 
-function check() {}
+function check() {
+  const result = board.reduce((total, row) => total.concat(row));
+  let winner = null;
+  let moves = {
+    "fa-times": [],
+    "fa-circle-o": [],
+  };
+  result.forEach((field, index) =>
+    moves[field] ? moves[field].push(index) : null
+  );
+  combinations.forEach((combination) => {
+    if (combination.every((index) => moves[PLAYER_ONE].indexOf(index) > -1)) {
+      winner = "Player_ONE";
+      StopGame();
+      return;
+    }
+    if (combination.every((index) => moves[PLAYER_TWO].indexOf(index) > -1)) {
+      winner = "Player_TWO";
+      StopGame();
+      return;
+    }
+  });
+
+  return winner;
+}
